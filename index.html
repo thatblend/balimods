@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>BaliMods – Open Library of 3D‑Printable Balisong Mods</title>
+  <style>
+    :root {
+      --bg: #0f1116;
+      --fg: #f5f6f7;
+      --fg-muted: #a8adb7;
+      --accent: #4f46e5;
+      --accent-light: #818cf8;
+      --card: #181b22;
+      --card-border: #262a33;
+      --radius: 14px;
+      --transition: 160ms ease;
+      --maxw: 1200px;
+      font-size: 16px;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ffffff;
+        --fg: #111827;
+        --fg-muted: #6b7280;
+        --accent: #4f46e5;
+        --accent-light: #6366f1;
+        --card: #f9fafb;
+        --card-border: #e5e7eb;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    a { color: var(--accent-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; border-radius: var(--radius); }
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .nav {
+      max-width: var(--maxw); margin: 0 auto; padding: .75rem 1rem; display: flex; align-items: center; gap: 1rem;
+    }
+    .nav h1 { margin: 0; font-size: 1.1rem; letter-spacing: .02em; }
+    .nav a.btn {
+      margin-left: auto; padding: .5rem .9rem; border: 1px solid var(--accent);
+      border-radius: calc(var(--radius) - 6px); color: var(--accent-light); font-size: .85rem;
+      transition: background var(--transition), color var(--transition);
+    }
+    .nav a.btn:hover { background: var(--accent); color: #fff; text-decoration: none; }
+
+    .hero {
+      max-width: var(--maxw); margin: 4rem auto 3rem;
+      padding: 3.5rem 2rem; text-align: center;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: 0 22px 40px -18px rgba(0,0,0,.45);
+    }
+    .hero h2 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 1rem; line-height: 1.1; color: var(--accent-light);}
+    .hero p { max-width: 700px; margin: 0 auto 2rem; color: var(--fg-muted); font-size: 1.05rem; }
+    .hero .cta {
+      display: inline-block; margin: .5rem; padding: .9rem 1.4rem; border-radius: var(--radius);
+      background: var(--accent); color: #fff; font-weight: 600; letter-spacing: .01em; transition: opacity var(--transition);
+    }
+    .hero .cta.secondary { background: var(--card); color: var(--accent-light); border: 1px solid var(--card-border); }
+    .hero .cta:hover { opacity: .9; text-decoration: none; }
+
+    section { padding: 2.5rem 1rem; }
+    .section-title { max-width: var(--maxw); margin: 0 auto 1.5rem; font-size: 1.6rem; }
+
+    #library-controls {
+      max-width: var(--maxw); margin: 0 auto 1.25rem; display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;
+    }
+    #search { flex: 1 1 240px; padding: .7rem 1rem; border-radius: var(--radius); border: 1px solid var(--card-border); background: var(--card); color: var(--fg); font-size: .95rem; }
+    #type-filter { display: flex; gap: .5rem; }
+    #type-filter button {
+      padding: .55rem .9rem; border-radius: calc(var(--radius) - 8px);
+      border: 1px solid var(--card-border); background: var(--card); color: var(--fg-muted);
+      font-size: .85rem; cursor: pointer; transition: background var(--transition), color var(--transition), border var(--transition);
+    }
+    #type-filter button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    #cards {
+      max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius);
+      overflow: hidden; display: flex; flex-direction: column; transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px -10px rgba(0,0,0,.6); }
+    .card-content { padding: 1rem 1rem 1.2rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; position: relative; }
+    .card h3 { margin: 0; font-size: 1.05rem; line-height: 1.25; }
+    .badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .7rem; letter-spacing: .03em; background: var(--accent-light); color: #fff; }
+    .badge.clone { background: #e11d48; }
+    .badge.original { background: #10b981; }
+    .card-content .badge{ position:absolute; top:1rem; right:1rem; }
+    .card h3{ padding-right:90px; }
+    .desc { color: var(--fg-muted); font-size: .85rem; flex: 1; }
+    .links { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
+    .links a {
+      padding: .45rem .75rem; background: var(--accent); color: #fff; border-radius: calc(var(--radius) - 10px); font-size: .8rem; font-weight: 500; text-decoration: none; transition: opacity var(--transition);
+    }
+    .links a.mirror { background: var(--card-border); color: var(--fg); }
+    .links a:hover { opacity: .85; }
+
+    #no-results { max-width: var(--maxw); margin: 2rem auto; text-align: center; color: var(--fg-muted); display: none; }
+
+    footer { margin-top: 4rem; padding: 2rem 1rem 3rem; background: var(--card); border-top: 1px solid var(--card-border); color: var(--fg-muted); }
+    footer .inner { max-width: var(--maxw); margin: 0 auto; font-size: .85rem; display: flex; flex-direction: column; gap: 1rem; }
+    footer a { color: var(--accent-light); }
+
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      cursor: pointer;
+      background-color: var(--card-border);
+      /* (MODIFIED) This makes the alt text invisible, fixing the flicker */
+      color: transparent;
+    }
+
+    /* ===== MODAL / LIGHTBOX STYLES ===== */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center; /* Vertical center */
+      justify-content: center; /* Horizontal center */
+      flex-direction: column;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal.show {
+        display: flex; /* Show with flex for centering */
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .modal-content {
+      display: block;
+      max-width: 90%;
+      max-height: 80vh; /* Leave room for caption */
+      border-radius: var(--radius);
+      animation: zoomIn 0.3s ease;
+    }
+    @keyframes zoomIn {
+      from { transform: scale(0.8); }
+      to { transform: scale(1); }
+    }
+
+    .modal-caption {
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--fg-muted);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 35px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: color 0.3s;
+      cursor: pointer;
+    }
+    .modal-close:hover,
+    .modal-close:focus {
+      color: var(--fg-muted);
+      text-decoration: none;
+    }
+
+    /* Tiny utilities */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <h1>BaliMods</h1>
+      <a href="#library" class="btn">Browse Library ↓</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <h2>Library of 3D printed mods for Balisongs</h2>
+      <p>Community maintained collection of 3D printable inserts, scales, spacers and other tweaks for butterfly knives (balisongs). Download the files you need, remix them to fit your style, and consider contributing your own creations. All in one place.</p>
+      <a href="#library" class="cta">Jump to Library</a>
+      <a href="#contribute" class="cta secondary">How to Contribute</a>
+    </section>
+
+    <section id="library">
+      <h2 class="section-title">Library</h2>
+
+      <div id="library-controls">
+        <label for="search" class="sr-only">Search</label>
+        <input type="search" id="search" placeholder="Search by name, brand, type of mod, etc…" autocomplete="off" />
+
+        <div id="type-filter" role="group" aria-label="Filter by type">
+          <button data-type="all" class="active" aria-pressed="true">All</button>
+          <button data-type="original" aria-pressed="false">Originals</button>
+          <button data-type="clone" aria-pressed="false">Clones</button>
+        </div>
+      </div>
+
+      <div id="cards" aria-live="polite"></div>
+      <p id="no-results">No results. Try a different search or filter.</p>
+    </section>
+
+    <section id="contribute">
+      <h2 class="section-title">Contribute</h2>
+      <div style="max-width: var(--maxw); margin: 0 auto; color: var(--fg-muted); font-size: .95rem; line-height: 1.55;">
+        <p>This is a community project and it gets better the more designs are linked here. If you've made a mod or know of a cool one that isn't listed here, I would love to add it!</p>
+        <p>Just send me an email at <a href="mailto:balimods@protonmail.com"><strong>balimods@protonmail.com</strong></a> with a link to the 3D files (like on Thingiverse, Printables, etc.) or send me the files directly.</p>
+        <p>Any extra info like print settings, description, or photos is always appreciated, but the files are the most important part. Thanks for helping out!</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="image-modal" class="modal" role="dialog" aria-modal="true">
+    <span class="modal-close" title="Close" aria-label="Close">&times;</span>
+    <img class="modal-content" id="modal-image" alt="Enlarged mod image">
+    <div id="modal-caption" class="modal-caption"></div>
+  </div>
+
+  <footer>
+    <div class="inner">
+      <div>© <span id="year"></span> BaliMods. <a href="https://github.com/thatblend/balimods" target="_blank" rel="noopener">Open source</a>, obviously.</div>
+      <div>No balisongs were dropped in the making of this site.</div>
+      <div><a href="#home">Back to top ↑</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // ======== Placeholder Data =========
+    const MODS = [
+      {
+        id: 'm1',
+        name: 'Nabalis Canyon Balisong Inserts',
+        brand: 'Nabalis',
+        type: 'original',
+        description: 'Drop-in handle inserts for the Nabalis Canyon.',
+        thingiverse: 'https://www.thingiverse.com/thing:6546428',
+        mirror: 'https://example.com/mirror/m1.stl',
+        image: 'https://cdn.thingiverse.com/assets/60/e3/ff/da/c9/large_display_5bd33794-1b2e-460f-baa2-4bd035638981.jpg'
+      },
+      {
+        id: 'm2',
+        name: 'G10-Style Inserts for Squid Industries Krake Raken',
+        brand: 'Squid Industries',
+        type: 'original',
+        description: 'Textured inserts to swap out weight distribution. Placeholder text lorem ipsum.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000002',
+        mirror: 'https://example.com/mirror/m2.zip',
+        image: 'https://media.printables.com/media/prints/897064/images/6871576_7a6b7f46-ae60-4aa3-907f-311dff4d2c06_061e10b9-a474-4791-98f2-da3545f6f70c/thumbs/inside/1280x960/jpg/sffdssd.webp'
+      },
+      {
+        id: 'm3',
+        name: 'Trainer Blade for BRS Replicant Clone',
+        brand: 'BRS',
+        type: 'clone',
+        description: 'Blunt trainer blade. Tune tolerances. Placeholder description.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000003',
+        mirror: 'https://example.com/mirror/m3.step',
+        image: 'https://placehold.co/600x400?text=Mod+3'
+      },
+      {
+        id: 'm4',
+        name: 'Spacer Kit – Hom Design Basilisk',
+        brand: 'Hom Design',
+        type: 'original',
+        description: 'Mix-and-match spacer kit to tweak balance. Placeholder ipsum.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000004',
+        mirror: 'https://example.com/mirror/m4.stl',
+        image: 'https://placehold.co/600x400?text=Mod+4'
+      },
+      {
+        id: 'm5',
+        name: 'Lanyard Bead & Spacer Combo for Clone Alpha Beast',
+        brand: 'BRS',
+        type: 'clone',
+        description: 'Adds a bead and acts as a spacer. Placeholder description.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000005',
+        mirror: 'https://example.com/mirror/m5.stl',
+        image: 'https://placehold.co/600x400?text=Mod+5'
+      },
+      {
+        id: 'm6',
+        name: 'Ergo Scales for Nabalis Volpe',
+        brand: 'Nabalis',
+        type: 'original',
+        description: 'Curved ergonomic scales. Placeholder text.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000006',
+        mirror: 'https://example.com/mirror/m6.zip',
+        image: 'https://placehold.co/600x400?text=Mod+6'
+      },
+      {
+        id: 'm7',
+        name: 'Bushing Press Tool (Universal)',
+        brand: 'Universal',
+        type: 'original',
+        description: 'Utility tool for pressing bushings. Works with most clones and originals. Placeholder.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000007',
+        mirror: 'https://example.com/mirror/m7.stl',
+        image: 'https://placehold.co/600x400?text=Mod+7'
+      },
+      {
+        id: 'm8',
+        name: 'Weight-Reducing Channel Inserts for Cheap Amazon Clone',
+        brand: 'Generic',
+        type: 'clone',
+        description: 'Lightweight inserts to remove ring on cheap trainer clones. Placeholder.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000008',
+        mirror: 'https://example.com/mirror/m8.stl',
+        image: 'https://placehold.co/600x400?text=Mod+8'
+      },
+      {
+        id: 'm9',
+        name: 'Balance Pins Kit for Squiddy',
+        brand: 'Squid Industries',
+        type: 'original',
+        description: 'Adjustable pins to fine-tune handle gap. Placeholder lorem ipsum.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000009',
+        mirror: 'https://example.com/mirror/m9.stl',
+        image: 'https://placehold.co/600x400?text=Mod+9'
+      },
+      {
+        id: 'm10',
+        name: 'Spacer Extenders for NRB Clone V3',
+        brand: 'NRB',
+        type: 'clone',
+        description: 'Extenders to alter handle length and balance. Placeholder text.',
+        thingiverse: 'https://www.thingiverse.com/thing:0000010',
+        mirror: 'https://example.com/mirror/m10.zip',
+        image: 'https://placehold.co/600x400?text=Mod+10'
+      }
+    ];
+
+    // ======== Render Logic =========
+    const cardsEl = document.getElementById('cards');
+    const searchEl = document.getElementById('search');
+    const filterBtns = Array.from(document.querySelectorAll('#type-filter button'));
+    const noResultsEl = document.getElementById('no-results');
+
+    let activeFilter = 'all';
+    let query = '';
+
+    function renderCards() {
+      const q = query.trim().toLowerCase();
+      const filtered = MODS.filter(m => {
+        const matchType = activeFilter === 'all' ? true : m.type === activeFilter;
+        const matchQuery = !q
+          ? true
+          : (m.name + ' ' + m.brand + ' ' + m.description).toLowerCase().includes(q);
+        return matchType && matchQuery;
+      });
+
+      cardsEl.innerHTML = '';
+      if (!filtered.length) {
+        noResultsEl.style.display = 'block';
+        return;
+      }
+      noResultsEl.style.display = 'none';
+
+      const fragment = document.createDocumentFragment();
+      filtered.forEach(m => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.dataset.modId = m.id;
+        
+        card.innerHTML = `
+          <img src="${m.image}" alt="Preview for ${m.name}" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/666666?text=Image+Not+Found';" />
+          <div class="card-content">
+            <h3>${m.name}</h3>
+            <span class="badge ${m.type}">${m.type === 'clone' ? 'Clone' : 'Original'}</span>
+            <p class="desc">${m.description}</p>
+            <div class="links">
+              <a href="${m.thingiverse}" target="_blank" rel="noopener">Get files</a>
+              <a href="${m.mirror}" class="mirror" target="_blank" rel="noopener">Mirror</a>
+            </div>
+          </div>
+        `;
+        fragment.appendChild(card);
+      });
+      cardsEl.appendChild(fragment);
+    }
+
+    searchEl.addEventListener('input', (e) => {
+      query = e.target.value;
+      renderCards();
+    });
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+        activeFilter = btn.dataset.type;
+        renderCards();
+      });
+    });
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    // ======== MODAL LOGIC =========
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    const modalCaption = document.getElementById('modal-caption');
+    const closeModalBtn = document.querySelector('.modal-close');
+    
+    modalImg.onerror = function() {
+      this.onerror = null;
+      this.src = 'https://placehold.co/800x600/eeeeee/666666?text=Image+Not+Found';
+    };
+
+    cardsEl.addEventListener('click', e => {
+      if (e.target.tagName === 'IMG' && e.target.closest('.card')) {
+        const card = e.target.closest('.card');
+        const modId = card.dataset.modId;
+        if (!modId) return;
+
+        const modData = MODS.find(m => m.id === modId);
+        if (!modData) return;
+        
+        modalImg.src = modData.image;
+        modalImg.alt = `Full view of ${modData.name}`;
+        modalCaption.textContent = modData.name;
+        
+        modal.classList.add('show');
+      }
+    });
+    
+    function closeModal() {
+      modal.classList.remove('show');
+    }
+
+    closeModalBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === "Escape" && modal.classList.contains('show')) {
+        closeModal();
+      }
+    });
+
+    // Initial render
+    renderCards();
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          const headerOffset = document.querySelector('header').offsetHeight;
+          const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = elementPosition - headerOffset - 10;
+          window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
