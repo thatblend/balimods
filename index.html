@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>BaliMods – Open Library of 3D‑Printable Balisong Mods</title>
+  <style>
+    /* --- Base & Theme --- */
+    :root {
+      --bg: #0f1116;
+      --bg-alt: #0b0d11;
+      --fg: #f5f6f7;
+      --fg-muted: #a8adb7;
+      --accent: #4f46e5;
+      --accent-light: #818cf8;
+      --card: #181b22;
+      --card-border: #262a33;
+      --radius: 14px;
+      --transition: 200ms ease;
+      --maxw: 1200px;
+      font-size: 16px;
+      scroll-padding-top: 80px; /* Offset for sticky header */
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f9fafb;
+        --bg-alt: #ffffff;
+        --fg: #111827;
+        --fg-muted: #6b7280;
+        --card: #ffffff;
+        --card-border: #e5e7eb;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      transition: background var(--transition), color var(--transition);
+    }
+    body.modal-open { overflow: hidden; }
+
+    a { color: var(--accent-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; display: block; }
+    h1, h2, h3 { line-height: 1.2; }
+
+    /* --- Accessibility --- */
+    :focus-visible {
+      outline: 2px solid var(--accent-light);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+
+    /* --- Header --- */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--card-border);
+    }
+    .nav {
+      max-width: var(--maxw); margin: 0 auto; padding: .75rem 1rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .nav h1 { margin: 0; font-size: 1.1rem; letter-spacing: .02em; }
+    .nav a.btn {
+      margin-left: auto; padding: .5rem .9rem; border: 1px solid var(--accent);
+      border-radius: calc(var(--radius) - 6px); color: var(--accent-light);
+      font-size: .85rem; transition: background var(--transition), color var(--transition);
+    }
+    .nav a.btn:hover { background: var(--accent); color: #fff; text-decoration: none; }
+
+    /* --- Hero Section --- */
+    .hero {
+      max-width: var(--maxw); margin: 3rem auto 3rem;
+      padding: 4rem 2rem; text-align: center;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      position: relative; overflow: hidden;
+      background: var(--bg-alt);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 15% 30%, var(--accent-light) 0%, transparent 35%),
+                  radial-gradient(circle at 85% 70%, var(--accent) 0%, transparent 35%);
+      opacity: 0.15;
+      animation: hero-glow 15s ease-in-out infinite;
+      z-index: 0;
+    }
+    @keyframes hero-glow {
+      0%   { transform: scale(1) rotate(0deg); opacity: 0.1; }
+      50%  { transform: scale(1.4) rotate(180deg); opacity: 0.2; }
+      100% { transform: scale(1) rotate(360deg); opacity: 0.1; }
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .hero h2 {
+      font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 1rem;
+      color: var(--fg); text-shadow: 0 1px 10px var(--bg);
+    }
+    .hero p {
+      max-width: 700px; margin: 0 auto 2rem; color: var(--fg-muted);
+      font-size: 1.1rem; line-height: 1.6;
+    }
+    .hero .cta {
+      display: inline-block; margin: .5rem; padding: .9rem 1.4rem;
+      border-radius: var(--radius); background: var(--accent); color: #fff;
+      font-weight: 600; letter-spacing: .01em;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+    .hero .cta.secondary {
+      background: var(--card); color: var(--accent-light);
+      border: 1px solid var(--card-border); box-shadow: none;
+    }
+    .hero .cta:hover {
+      transform: translateY(-2px); text-decoration: none;
+      box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--accent) 50%, transparent);
+    }
+    .hero .cta.secondary:hover {
+      background: var(--card-border);
+      box-shadow: none;
+    }
+
+    /* --- Main Content & Sections --- */
+    section { padding: 2.5rem 1rem; }
+    .section-title {
+      max-width: var(--maxw); margin: 0 auto 1.5rem;
+      font-size: 1.8rem; letter-spacing: -0.02em;
+    }
+
+    /* --- Library Controls --- */
+    #library-controls {
+      max-width: var(--maxw); margin: 0 auto 1.5rem;
+      display: flex; flex-wrap: wrap; gap: .75rem; align-items: center;
+    }
+    .search-wrapper { flex: 1 1 240px; position: relative; }
+    .search-wrapper::before { /* Search Icon */
+      content: '🔍'; position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); opacity: 0.4; font-size: .9rem;
+    }
+    #search {
+      width: 100%; padding: .7rem 1rem .7rem 2.5rem;
+      border-radius: var(--radius); border: 1px solid var(--card-border);
+      background: var(--card); color: var(--fg); font-size: .95rem;
+    }
+    #sort-by, #type-filter button {
+      padding: .7rem .9rem; border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--card-border); background: var(--card);
+      color: var(--fg-muted); font-size: .85rem; cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+    #type-filter button:hover, #sort-by:hover {
+      border-color: var(--fg-muted);
+    }
+    #type-filter { display: flex; flex-wrap: wrap; gap: .5rem; }
+    #type-filter button.active {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    #sort-by { -webkit-appearance: none; -moz-appearance: none; appearance: none; padding-right: 2rem; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a8adb7' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right .7rem center; background-repeat: no-repeat; background-size: 1.2em; }
+    #sort-by:focus { border-color: var(--accent-light); }
+
+    /* --- Card Grid --- */
+    #cards {
+      max-width: var(--maxw); margin: 0 auto; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--radius); overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform var(--transition), box-shadow var(--transition);
+      opacity: 0; animation: card-fade-in 0.5s ease forwards;
+      animation-delay: var(--card-delay, 0s);
+    }
+    @keyframes card-fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -8px rgba(0,0,0,.5);
+    }
+    .card-img-container {
+      aspect-ratio: 16 / 10;
+      background-color: var(--card-border); overflow: hidden;
+    }
+    .card img {
+      width: 100%; height: 100%; object-fit: cover; cursor: pointer;
+      transition: transform var(--transition);
+    }
+    .card:hover img { transform: scale(1.05); }
+    .card-content {
+      padding: 1rem 1rem 1.2rem; display: flex; flex-direction: column;
+      flex-grow: 1; position: relative;
+    }
+    .card h3 {
+      margin: 0 0 .5rem; font-size: 1.1rem; padding-right: 90px;
+    }
+    .badge {
+      position: absolute; top: 1rem; right: 1rem;
+      display: inline-block; padding: .25rem .6rem; border-radius: 999px;
+      font-size: .7rem; font-weight: 500; letter-spacing: .03em; color: #fff;
+    }
+    .badge.clone { background: #e11d48; }
+    .badge.original { background: #10b981; }
+    .badge.other { background: #f97316; }
+    .desc { color: var(--fg-muted); font-size: .9rem; flex-grow: 1; line-height: 1.5; }
+    .links { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1rem; }
+    .links a {
+      padding: .45rem .8rem; background: var(--accent); color: #fff;
+      border-radius: calc(var(--radius) - 8px); font-size: .8rem;
+      font-weight: 500; text-decoration: none; transition: opacity var(--transition);
+    }
+    .links a.mirror { background: var(--card-border); color: var(--fg); }
+    .links a:hover { opacity: .85; text-decoration: none; }
+    #no-results {
+      max-width: var(--maxw); margin: 2rem auto; text-align: center;
+      color: var(--fg-muted); display: none; padding: 2rem;
+      border: 2px dashed var(--card-border); border-radius: var(--radius);
+    }
+
+    /* --- Guides Section --- */
+    #guides-list {
+      max-width: var(--maxw); margin: 0 auto; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(50%, 1fr)); /* --- Fallback minmax 400px --- */
+      gap: 1.5rem;
+    }
+    .guide-entry {
+      display: flex; gap: 1.5rem; align-items: center; background: var(--card);
+      border: 1px solid var(--card-border); border-radius: var(--radius);
+      padding: 1rem; overflow: hidden; cursor: pointer; color: var(--fg);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .guide-entry:hover {
+      transform: translateY(-3px); box-shadow: 0 8px 24px -10px rgba(0,0,0,.6);
+      border-color: var(--fg-muted); text-decoration: none;
+    }
+    .guide-entry img {
+      width: 120px; height: 80px; object-fit: cover;
+      border-radius: calc(var(--radius) - 8px); flex-shrink: 0;
+      background-color: var(--card-border);
+    }
+    .guide-content { flex-grow: 1; }
+    .guide-content h3 { margin: 0 0 0.5rem; font-size: 1.15rem; color: var(--fg); }
+    .guide-content p { margin: 0; font-size: 0.9rem; color: var(--fg-muted); line-height: 1.5; }
+
+    /* --- Contribute Section --- */
+    .contribute-box {
+      max-width: var(--maxw); margin: 0 auto; color: var(--fg-muted);
+      font-size: .95rem; line-height: 1.6;
+    }
+    .contribute-box a strong { color: var(--accent-light); }
+
+    /* --- Footer --- */
+    footer {
+      margin-top: 4rem; padding: 2rem 1rem 3rem; background: var(--card);
+      border-top: 1px solid var(--card-border); color: var(--fg-muted);
+    }
+    footer .inner {
+      max-width: var(--maxw); margin: 0 auto; font-size: .85rem;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 1rem;
+    }
+    footer .inner .footer-left div:first-child { margin-bottom: 0.5rem; }
+
+
+    /* --- Modal --- */
+    .modal {
+      display: none; position: fixed; z-index: 100;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      align-items: center; justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal.show { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-close {
+      position: absolute; top: 25px; right: 35px;
+      font-size: 32px; font-weight: 300; line-height: 1;
+      color: rgba(255, 255, 255, 0.9);
+      background: transparent; border: none;
+      cursor: pointer; padding: 8px;
+      transition: all 0.2s ease;
+      width: 50px; height: 50px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+    }
+    .modal-close:hover, .modal-close:focus { 
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+      outline: none;
+    }
+
+    #image-modal .modal-content-wrapper {
+      animation: zoomIn 0.3s ease; display: flex; flex-direction: column;
+    }
+    @keyframes zoomIn { from { transform: scale(0.8); } to { transform: scale(1); } }
+    #modal-image {
+      display: block; max-width: 90vw; max-height: 80vh;
+      border-radius: var(--radius);
+    }
+    #modal-caption { margin-top: 1rem; text-align: center; color: var(--fg-muted); }
+
+    .guide-modal-content {
+      background: var(--card);
+      padding: 2.5rem;
+      border-radius: var(--radius);
+      width: 90%;
+      max-height: 70%;
+      overflow-y: auto;
+      color: var(--fg-muted);
+      line-height: 1.7;
+      animation: zoomIn .3s ease;
+      position: relative;
+    }
+
+    /* “Big screen” breakpoint */
+    @media (min-width: 1024px) {
+      .guide-modal-content {
+        width: 40%;
+      }
+    }
+    .guide-modal-content h2, .guide-modal-content h3 { color: var(--fg); margin-top: 0; margin-bottom: 1rem; line-height: 1.3; }
+    .guide-modal-content h3 { margin-top: 2rem; font-size: 1.3rem; border-bottom: 1px solid var(--card-border); padding-bottom: .5rem; }
+    .guide-modal-content p { margin-bottom: 1rem; }
+    .guide-modal-content ul { padding-left: 20px; }
+    .guide-modal-content li { margin-bottom: .75rem; }
+    .guide-modal-content code {
+      background: var(--bg); border: 1px solid var(--card-border);
+      padding: .2rem .4rem; border-radius: 6px; font-size: .9em;
+      color: var(--accent-light);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <h1>BaliMods</h1>
+      <a href="#library" class="btn">Browse Library ↓</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <h2>Open Library of 3D-Printable Balisong Mods</h2>
+      <p>A community-maintained collection of 3D printable inserts, scales, spacers, and other tweaks for your balisongs. Find your mod, print it, and flip it. Welcome to the workshop.</p>
+      <a href="#library" class="cta">Jump to Library</a>
+      <a href="#guides" class="cta secondary">Read the Guides</a>
+    </section>
+
+    <section id="library">
+      <h2 class="section-title">The Library</h2>
+      <div id="library-controls">
+        <div class="search-wrapper">
+          <label for="search" class="sr-only">Search</label>
+          <input type="search" id="search" placeholder="Search by name, brand, etc…" autocomplete="off" />
+        </div>
+
+        <div id="type-filter" role="group" aria-label="Filter by type">
+          <button data-type="all" class="active" aria-pressed="true">All</button>
+          <button data-type="original" aria-pressed="false">Originals</button>
+          <button data-type="clone" aria-pressed="false">Clones</button>
+          <button data-type="other" aria-pressed="false">Other</button>
+        </div>
+
+        <label for="sort-by" class="sr-only">Sort by</label>
+        <select id="sort-by">
+          <option value="newest">Sort: Newest</option>
+          <option value="name-asc">Sort: A-Z</option>
+          <option value="name-desc">Sort: Z-A</option>
+        </select>
+      </div>
+      <div id="cards" aria-live="polite"></div>
+      <p id="no-results">No results found. Maybe try a different search?</p>
+    </section>
+    
+    <section id="guides">
+      <h2 class="section-title">Guides & Tips</h2>
+      <div id="guides-list"></div>
+    </section>
+
+    <section id="contribute">
+      <h2 class="section-title">Contribute</h2>
+      <div class="contribute-box">
+        <p>This is a community project and it gets better the more designs are linked here. If you've made a mod or know of a cool one that isn't listed here, I would love to add it!</p>
+        <p>Just send me an email at <a href="mailto:balimods@protonmail.com"><strong>balimods@protonmail.com</strong></a> with a link to the 3D files (like on Thingiverse, Printables, etc.) or send me the files directly.</p>
+        <p>Any extra info like print settings, description, or photos is always appreciated but not required. Thanks for helping out!</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="image-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-caption">
+    <div class="modal-content-wrapper">
+      <img class="modal-content" id="modal-image" alt="Enlarged mod image">
+      <div id="modal-caption" class="modal-caption"></div>
+    </div>
+    <button class="modal-close" title="Close" aria-label="Close">&times;</button>
+  </div>
+
+  <div id="guide-modal" class="modal" role="dialog" aria-modal="true" aria-label="Guide Content">
+    <div class="guide-modal-content" id="guide-modal-content">
+      <div id="guide-modal-body"></div>
+    </div>
+    <button class="modal-close" title="Close" aria-label="Close">&times;</button>
+  </div>
+
+  <footer>
+    <div class="inner">
+      <div class="footer-left">
+        <div>© <span id="year"></span> BaliMods. <a href="https://github.com/thatblend/balimods" target="_blank" rel="noopener">Open source</a>, obviously.</div>
+        <div>No balisongs were dropped in the making of this site.</div>
+      </div>
+      <div><a href="#home">Back to top ↑</a></div>
+    </div>
+  </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // --- DATA SOURCE ---
+  const MODS = [
+    {
+      id: 'm1',
+      name: 'Nabalis Canyon Balisong inserts',
+      brand: 'Nabalis',
+      type: 'original',
+      description: 'Drop-in handle inserts for the Nabalis Canyon by @xylite.',
+      thingiverse: 'https://www.thingiverse.com/thing:6546428',
+      mirror: 'https://example.com/mirror/m1.stl',
+      image: 'images/nabalis_canyon_inserts.jpg',
+      dateAdded: '2025-07-20'
+    },
+    {
+      id: 'm2',
+      name: 'Titanium Kraken Spacer/Extension',
+      brand: 'Squid Industries',
+      type: 'original',
+      description: 'Spacers designed to extend the handles of the Titanium Krake Raken by @Myenkos.',
+      thingiverse: 'https://www.thingiverse.com/thing:7094225',
+      mirror: '',
+      image: 'images/titanium_kraken_extension.JPG',
+      dateAdded: '2025-07-22'
+    },
+    {
+      id: 'm3',
+      name: 'B+ V4 Tsunami inserts',
+      brand: 'Baliplus',
+      type: 'clone',
+      description: 'Inserts for the Baliplus V4 Tsunami by /u/Suzuki-Carry. Produces a much deeper sound. Does not fit on Armed Shark or Blue River tsunami clones.',
+      thingiverse: 'https://www.dropbox.com/scl/fo/2nhv206dhdkdpn23vdd5a/AMUoeiMfjMrsAh2KtNOjDXo?rlkey=8f0u46rmm6mcrenm5whm7e18t&st=5u93i0a0&dl=0',
+      mirror: 'https://example.com/mirror/m3.step',
+      image: 'images/baliplus_tsunami_inserts.webp',
+      dateAdded: '2025-06-15'
+    },
+    {
+      id: 'm4',
+      name: 'Apocalypse Prysma inlays',
+      brand: 'Apocalypse',
+      type: 'clone',
+      description: 'Inlays for the Apocalypse Prysma clone to improve grip. Might also fit the genuine Prysma. By /u/Proto-The-Protogen.',
+      thingiverse: 'https://www.thingiverse.com/thing:6289069',
+      mirror: 'https://example.com/mirror/m4.stl',
+      image: 'images/prysma_inlays.webp',
+      dateAdded: '2025-07-01'
+    },
+    {
+      id: 'm5',
+      name: 'Squidtrainer V4 Blade inserts',
+      brand: 'Squid Industries',
+      type: 'original',
+      description: 'Squidtrainer V4 blade inserts by @EthanAlexE_23560. Reduces ringing.',
+      thingiverse: 'https://www.printables.com/model/1231364-squid-industries-squidtrainer-v4-blade-insertssile',
+      mirror: 'https://example.com/mirror/m5.stl',
+      image: 'images/squidtrainer_inserts.webp',
+      dateAdded: '2025-05-10'
+    },
+    {
+      id: 'm6',
+      name: 'Titanium Kraken Channel Spacers',
+      brand: 'Squid Industries',
+      type: 'original',
+      description: 'Channel spacers for the Squid Industries Titanium Kraken by @LoneWolf.',
+      thingiverse: 'https://makerworld.com/en/models/755539-ti-kraken-channel-spacers#profileId-689662',
+      mirror: null,
+      image: 'images/titanium_kraken_spacers.webp',
+      dateAdded: '2025-07-25'
+    },
+    {
+      id: 'm7',
+      name: 'TheOne EX10 Balisong Spacers',
+      brand: 'TheOne',
+      type: 'clone',
+      description: 'Lighter spacers for T1 EX10 balisong clone. By @NikitaIgn.',
+      thingiverse: 'https://www.thingiverse.com/thing:6772726',
+      mirror: 'https://example.com/mirror/m7.stl',
+      image: 'images/theone_ex10_spacers.jpg',
+      dateAdded: '2025-06-28'
+    },
+    {
+      id: 'm8',
+      name: 'Squid Industries Nautilus Blade Inserts ',
+      brand: 'Squid Industries',
+      type: 'original',
+      description: 'Lightweight inserts for the Nautilus by @AirVoh.',
+      thingiverse: 'https://www.thingiverse.com/thing:5359983',
+      mirror: 'https://example.com/mirror/m8.stl',
+      image: 'images/nautilus_blade_inserts.jpg',
+      dateAdded: '2025-07-11'
+    },
+    {
+      id: 'm12',
+      name: 'Balisong Display Stand',
+      brand: 'Generic',
+      type: 'other',
+      description: 'placeholder stuff',
+      thingiverse: '#',
+      mirror: '',
+      image: 'https://placehold.co/600x400/f97316/f5f6f7?text=Stand',
+      dateAdded: '2025-01-01'
+    }
+  ];
+
+  const GUIDES = [
+    {
+      id: 'g1',
+      title: 'What Oil Should You Use on Your Balisong?',
+      description: 'This guide explains the basic differences between thin, medium and thick oils and which ones are the best for your balisong.',
+      image: 'https://placehold.co/300x200/4f46e5/f5f6f7?text=Tuning',
+      content: `
+        <h2>Picking the Perfect Oil</h2>
+        <p>Alright, let's talk about balisong oils. There's not a lot of easily available info on what each oil does and which one is ideal for which situation, so I decided to write this quick comparison between thin, medium (regular) and thick oils. At the end of the day, the function of oil is to both protect and lubricate the moving parts of your balisong so that your bushings/washers don't get damaged after a few months and to get a better sound.</p>
+        <p>For simply protecting your balisong, it doesn't really matter which oil you use - you could use motor oil from your car and it would work just fine for protectection of the washers/bushings (though it likely wouldn't sound very good), but I will talk specifically about balisong and knife oils and how they affect sound and tolerances.</p>
+        <h3>Thin Oils</h3>
+        <p>Stuff like Benchmade Blue Lube, KPL Ultra-Light or Carbon Honey THIN fall into this category. These are super runny and great for smooth, fast action, especially on balisongs with perfectly tuned bushings. If your balisong is already solid with minimal or zero handle play, thin oils just help keep everything lubricated without slowing it down. But they do absolutely nothing to help crappy tolerances, so if your handles have a lot of play and poor sound, these oils will likely not improve that in any way.</p>
+        <h3>Medium Oils</h3>
+        <p>This is where oils like KPL Original or Carbon Honey Medium come in. They're a bit thicker than the super thin stuff, but they still provide a smooth flipping experience without slowing anything down. They last a bit longer than thin oils and they give you a nice, consistent feel. They might slightly improve the feel and sound of a knife with poor tolerances, but nowhere near as much as thick oils. Medium oils are good for basically any balisong - a titanium grail with top tier tolerances, decently tuned clone or even an absolute beater. If you can't choose which oil you want and you can only afford one, go with a medium one.</p>
+        <h3>Thick Oils</h3>
+        <p>Now here’s where things get a bit more situational. Thicker oils like KPL Heavy or Carbon Honey THICK are best used on beaters or cheaper clones that have a lot of handle play. Thicker oils won’t magically fix bad tolerances, but they can help fill in the gaps a bit and reduce that loose, rattly feel. The main downside? It can slow things down slightly, especially if you go apply too much of it. But for some people, that extra bit of “tightness” is worth it. In my opinion, they don't really make much sense if you only have knives with perfect tolerances, but it's still perfectly fine and it's not like your perfectly tuned grail will flip badly if you apply a thick oil.</p>
+        <h3>So what should you use?</h3>
+        <p>If you’ve got a high-end bali with perfect tolerances, go thin. If you want something that lasts a bit longer and works on pretty much anything, go medium. If your knife’s a little loose and you want to make it feel more solid, try a thick oil. If you can afford it, my personal recommendation is to go with two different oils - a thin one and a thick one and apply them based on the specific bali.</p>
+      `
+    },
+    {
+      id: 'g2',
+      title: 'Choosing the Right Filament',
+      description: 'A simple comparison guide of different 3D printing filaments and how they might affect the balisong parts.',
+      image: 'https://placehold.co/300x200/10b981/f5f6f7?text=Filament',
+      content: `
+        <h2>Choosing the Right Filament for Your Mods</h2>
+        <p>The filament you choose can dramatically affect the feel, sound, and durability of your 3D printed mods..</p>
+        <h3>PLA/PLA+</h3>
+        <ul>
+          <li><strong>Pros:</strong> Finish later</li>
+          <li><strong>Cons:</strong> ...</li>
+        </ul>
+        <h3>PETG</h3>
+        <ul>
+          <li><strong>Pros:</strong> Finish later</li>
+          <li><strong>Cons:</strong> ....</li>
+        </ul>
+        <h3>ABS</h3>
+        <ul>
+          <li><strong>Pros:</strong> Finish later</li>
+          <li><strong>Cons:</strong> ....</li>
+        </ul>
+        <h3>Flexible Filament</h3>
+        <ul>
+          <li><strong>Pros:</strong> Later</li>
+          <li><strong>Cons:</strong> ...</li>
+        </ul>
+        <p><strong>Recommendation:</strong> Somethin somethin</p>
+      `
+    }
+  ];
+
+  // --- DOM Elements ---
+  const cardsEl = document.getElementById('cards');
+  const searchEl = document.getElementById('search');
+  const filterBtns = document.querySelectorAll('#type-filter button');
+  const sortSelect = document.getElementById('sort-by');
+  const noResultsEl = document.getElementById('no-results');
+  const guidesListEl = document.getElementById('guides-list');
+
+  // --- State ---
+  let activeFilter = 'all';
+  let query = '';
+  let activeSort = 'newest';
+
+  // --- Render Functions ---
+  const renderCards = () => {
+    const q = query.trim().toLowerCase();
+
+    let filtered = MODS
+      .filter(m => (activeFilter === 'all' || m.type === activeFilter))
+      .filter(m => !q || (m.name + ' ' + m.brand + ' ' + m.description).toLowerCase().includes(q));
+
+    filtered.sort((a, b) => {
+      if (activeSort === 'name-asc') return a.name.localeCompare(b.name);
+      if (activeSort === 'name-desc') return b.name.localeCompare(a.name);
+      if (activeSort === 'newest') return new Date(b.dateAdded) - new Date(a.dateAdded);
+      return 0;
+    });
+
+    cardsEl.innerHTML = '';
+    noResultsEl.style.display = filtered.length ? 'none' : 'block';
+    
+    const fragment = document.createDocumentFragment();
+    filtered.forEach((m, index) => {
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.dataset.modId = m.id;
+      card.style.setProperty('--card-delay', `${index * 50}ms`);
+      
+      const badgeText = m.type.charAt(0).toUpperCase() + m.type.slice(1);
+      const mirrorLink = m.mirror ? `<a href="${m.mirror}" class="mirror" target="_blank" rel="noopener">Mirror</a>` : '';
+
+      card.innerHTML = `
+        <div class="card-img-container">
+          <img src="${m.image}" alt="Preview for ${m.name}" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/666666?text=Image+Not+Found';">
+        </div>
+        <div class="card-content">
+          <h3>${m.name}</h3>
+          <span class="badge ${m.type}">${badgeText}</span>
+          <p class="desc">${m.description}</p>
+          <div class="links">
+            <a href="${m.thingiverse}" target="_blank" rel="noopener">Get files</a>
+            ${mirrorLink}
+          </div>
+        </div>
+      `;
+      fragment.appendChild(card);
+    });
+    cardsEl.appendChild(fragment);
+  };
+
+  const renderGuides = () => {
+    if (!guidesListEl) return;
+    const fragment = document.createDocumentFragment();
+    GUIDES.forEach(g => {
+      const guideEl = document.createElement('a');
+      guideEl.className = 'guide-entry';
+      guideEl.href = `#`; // To prevent page junp
+      guideEl.dataset.guideId = g.id;
+      guideEl.setAttribute('role', 'button');
+      guideEl.innerHTML = `<img src="${g.image}" alt="" loading="lazy" /><div class="guide-content"><h3>${g.title}</h3><p>${g.description}</p></div>`;
+      fragment.appendChild(guideEl);
+    });
+    guidesListEl.appendChild(fragment);
+  };
+
+  // --- Modal Management ---
+  class Modal {
+    constructor(modalEl) {
+      this.modal = modalEl;
+      this.closeButton = this.modal.querySelector('.modal-close');
+      this.focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      this.firstFocusableEl = null;
+      this.lastFocusableEl = null;
+      this.triggerElement = null;
+
+      this.closeButton.addEventListener('click', () => this.close());
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) this.close();
+      });
+      this.modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') this.close();
+        if (e.key === 'Tab') this.trapFocus(e);
+      });
+    }
+
+    open(triggerEl) {
+      this.triggerElement = triggerEl;
+      const focusableContent = this.modal.querySelectorAll(this.focusableElements);
+      this.firstFocusableEl = focusableContent[0];
+      this.lastFocusableEl = focusableContent[focusableContent.length - 1];
+
+      this.modal.classList.add('show');
+      document.body.classList.add('modal-open');
+      this.closeButton.focus();
+    }
+
+    close() {
+      this.modal.classList.remove('show');
+      document.body.classList.remove('modal-open');
+      if (this.triggerElement) this.triggerElement.focus();
+    }
+
+    trapFocus(e) {
+      if (e.shiftKey) { // Shift + Tab
+        if (document.activeElement === this.firstFocusableEl) {
+          this.lastFocusableEl.focus();
+          e.preventDefault();
+        }
+      } else { // Tab
+        if (document.activeElement === this.lastFocusableEl) {
+          this.firstFocusableEl.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  }
+
+  const imageModal = new Modal(document.getElementById('image-modal'));
+  const guideModal = new Modal(document.getElementById('guide-modal'));
+  const modalImg = document.getElementById('modal-image');
+  const modalCaption = document.getElementById('modal-caption');
+  const guideModalBody = document.getElementById('guide-modal-body');
+
+  const openImageModal = (modId, triggerEl) => {
+    const modData = MODS.find(m => m.id === modId);
+    if (!modData) return;
+    modalImg.src = modData.image;
+    modalImg.alt = `Full view of ${modData.name}`;
+    modalCaption.textContent = modData.name;
+    imageModal.open(triggerEl);
+  };
+  
+  modalImg.onerror = function() {
+    this.onerror = null;
+    this.src = 'https://placehold.co/800x600/eeeeee/666666?text=Image+Not+Found'; // Replace with local placeholder later so it doesn't f-up in the future
+  };
+
+  const openGuideModal = (guideId, triggerEl) => {
+    const guideData = GUIDES.find(g => g.id === guideId);
+    if (!guideData) return;
+    guideModalBody.innerHTML = guideData.content;
+    guideModal.open(triggerEl);
+  };
+
+  // --- Event Listeners ---
+  searchEl.addEventListener('input', e => {
+    query = e.target.value;
+    renderCards();
+  });
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      activeFilter = btn.dataset.type;
+      renderCards();
+    });
+  });
+
+  sortSelect.addEventListener('change', e => {
+    activeSort = e.target.value;
+    renderCards();
+  });
+  
+  cardsEl.addEventListener('click', e => {
+    const cardImg = e.target.closest('.card-img-container');
+    if (cardImg) {
+      openImageModal(cardImg.closest('.card').dataset.modId, cardImg);
+    }
+  });
+
+  guidesListEl.addEventListener('click', e => {
+    const guideEntry = e.target.closest('.guide-entry');
+    if (guideEntry) {
+      e.preventDefault();
+      openGuideModal(guideEntry.dataset.guideId, guideEntry);
+    }
+  });
+  
+  // --- Initial Setup ---
+  document.getElementById('year').textContent = new Date().getFullYear();
+  renderCards();
+  renderGuides();
+});
+</script>
+</body>
+</html>
