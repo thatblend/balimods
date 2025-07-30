@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="The top library for 3D-printable balisong mods. Download free custom scales, inserts, spacers and more for your favorite balisongs and balisong clones.">
   <meta name="google-site-verification" content="idRVCOHB1BpbGZtk0Dw0eTnlh68vtSwPliiE8nwRdjg" />
-  <link rel="icon" type="image/png" href="favicon.png">
-  <title>BaliMods – Open Library of 3D‑Printable Balisong Mods</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+  <title>BaliMods – Open Library of 3D‑Printable Balisong Modifications</title>
   <style>
     /* --- Base & Theme --- */
     :root {
@@ -395,7 +395,7 @@
     <section id="contribute">
       <h2 class="section-title">Contribute</h2>
       <div class="contribute-box">
-        <p>This is a community project and it gets better the more designs are linked here. If you've made a mod or know of a cool one that isn't listed here, I would love to add it!</p>
+        <p>This is a community project and it gets better the more designs are linked here. If you've made a balisong mod or know of a cool one that isn't listed here, I would love to add it!</p>
         <p>Just send me an email at <a href="mailto:balimods@protonmail.com"><strong>balimods@protonmail.com</strong></a> with a link to the 3D files (like on Thingiverse, Printables, etc.) or send me the files directly.</p>
         <p>Any extra info like print settings, description, or photos is always appreciated but not required. Thanks for helping out!</p>
       </div>
@@ -420,7 +420,7 @@
   <footer>
     <div class="inner">
       <div class="footer-left">
-        <div>© <span id="year"></span> BaliMods. <a href="https://github.com/thatblend/balimods" target="_blank" rel="noopener">Open source</a>, obviously.</div>
+        <div>© <span id="year"></span> Bali Mods. <a href="https://github.com/thatblend/balimods" target="_blank" rel="noopener">Open source</a>.</div>
         <div>No balisongs were dropped in the making of this site.</div>
       </div>
       <div><a href="#home">Back to top ↑</a></div>
@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'original',
       description: 'Drop-in handle inserts for the Nabalis Canyon by @xylite.',
       thingiverse: 'https://www.thingiverse.com/thing:6546428',
-      mirror: 'https://example.com/mirror/m1.stl',
+      mirror: '',
       image: 'images/nabalis_canyon_inserts.jpg',
       dateAdded: '2025-07-20'
     },
@@ -461,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'clone',
       description: 'Inserts for the Baliplus V4 Tsunami by /u/Suzuki-Carry. Produces a much deeper sound. Does not fit on Armed Shark or Blue River tsunami clones.',
       thingiverse: 'https://www.dropbox.com/scl/fo/2nhv206dhdkdpn23vdd5a/AMUoeiMfjMrsAh2KtNOjDXo?rlkey=8f0u46rmm6mcrenm5whm7e18t&st=5u93i0a0&dl=0',
-      mirror: 'https://example.com/mirror/m3.step',
+      mirror: '',
       image: 'images/baliplus_tsunami_inserts.webp',
       dateAdded: '2025-06-15'
     },
@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'clone',
       description: 'Inlays for the Apocalypse Prysma clone to improve grip. Might also fit the genuine Prysma. By /u/Proto-The-Protogen.',
       thingiverse: 'https://www.thingiverse.com/thing:6289069',
-      mirror: 'https://example.com/mirror/m4.stl',
+      mirror: '',
       image: 'images/prysma_inlays.webp',
       dateAdded: '2025-07-01'
     },
@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'original',
       description: 'Squidtrainer V4 blade inserts by @EthanAlexE_23560. Reduces ringing.',
       thingiverse: 'https://www.printables.com/model/1231364-squid-industries-squidtrainer-v4-blade-insertssile',
-      mirror: 'https://example.com/mirror/m5.stl',
+      mirror: '',
       image: 'images/squidtrainer_inserts.webp',
       dateAdded: '2025-05-10'
     },
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'clone',
       description: 'Lighter spacers for T1 EX10 balisong clone. By @NikitaIgn.',
       thingiverse: 'https://www.thingiverse.com/thing:6772726',
-      mirror: 'https://example.com/mirror/m7.stl',
+      mirror: '',
       image: 'images/theone_ex10_spacers.jpg',
       dateAdded: '2025-06-28'
     },
@@ -516,19 +516,19 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'original',
       description: 'Lightweight inserts for the Nautilus by @AirVoh.',
       thingiverse: 'https://www.thingiverse.com/thing:5359983',
-      mirror: 'https://example.com/mirror/m8.stl',
+      mirror: '',
       image: 'images/nautilus_blade_inserts.jpg',
       dateAdded: '2025-07-11'
     },
     {
       id: 'm12',
-      name: 'Balisong Display Stand',
+      name: '8 Balisong Stand',
       brand: 'Generic',
       type: 'other',
-      description: 'placeholder stuff',
-      thingiverse: '#',
+      description: 'A 3D printed stand that can hold up to 8 balisongs and two oils, by @g3nn0suk3.',
+      thingiverse: 'https://www.thingiverse.com/thing:7008125',
       mirror: '',
-      image: 'https://placehold.co/600x400/f97316/f5f6f7?text=Stand',
+      image: 'images/balisong_stand.webp',
       dateAdded: '2025-01-01'
     }
   ];
@@ -555,33 +555,20 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       id: 'g2',
-      title: 'Choosing the Right Filament',
-      description: 'A simple comparison guide of different 3D printing filaments and how they might affect the balisong parts.',
+      title: 'What filament to use for 3D printed mods?',
+      description: 'A simple comparison guide of different 3D printing filaments and how they might affect the printed balisong parts.',
       image: 'https://placehold.co/300x200/10b981/f5f6f7?text=Filament',
       content: `
         <h2>Choosing the Right Filament for Your Mods</h2>
-        <p>The filament you choose can dramatically affect the feel, sound, and durability of your 3D printed mods..</p>
+        <p>Alright, let's talk filaments for your 3D printed balisong mods. With so many options, it's difficult to know what's best for functional spacers versus cosmetic inlays. For a simple display stand, anything works, but for parts that affect your balisong's performance and durability, the material choice is key. Let's compare the few common materials:</p>
         <h3>PLA/PLA+</h3>
-        <ul>
-          <li><strong>Pros:</strong> Finish later</li>
-          <li><strong>Cons:</strong> ...</li>
-        </ul>
+        <p>This is your go-to for easy, clean prints. It's rigid, cheap and comes in a huge variety of colors, making it the perfect choice for cosmetic parts like inlays or inserts. The biggest downside is that it's brittle. Using PLA for spacers is fine, but not the best idea - they could easily crack from a hard drop or from overtightening the pivots. PLA+ will be much better for this as its usually less brittle than standard PLA, but still not as good as PETG. Still, for most prints - PLA will work just fine.</p>
         <h3>PETG</h3>
-        <ul>
-          <li><strong>Pros:</strong> Finish later</li>
-          <li><strong>Cons:</strong> ....</li>
-        </ul>
+        <p>Think of PETG as the perfect middle ground. It offers much better durability and impact resistance than PLA, making it the ideal choice for spacers. It has enough flex to absorb impacts without shattering, while still being rigid enough for spacers. It's the best all-rounder and the filament you should be using for any printed part that needs to be tough. The only downside is that it's a bit harder to print than PLA, especially for small parts.</p>
         <h3>ABS</h3>
-        <ul>
-          <li><strong>Pros:</strong> Finish later</li>
-          <li><strong>Cons:</strong> ....</li>
-        </ul>
-        <h3>Flexible Filament</h3>
-        <ul>
-          <li><strong>Pros:</strong> Later</li>
-          <li><strong>Cons:</strong> ...</li>
-        </ul>
-        <p><strong>Recommendation:</strong> Somethin somethin</p>
+        <p>ABS is extremely durable, like LEGO bricks, making it technically great for spacers that need to survive anything. The problem? It's not easy to print. It's known for warping, which can ruin the precise, flat shape a spacer needs. For most printed balisong mods, the extra toughness over PETG simply isn't worth the printing headache and I wouldn't recommend it unless you already have a spool you need to use.</p>
+        <h3>TPU (Flexible Filament)</h3>
+        <p>TPU is a rubbery, flexible material. Its best use is for bite handle indicators or inlays. They can work for inserts, but it depends on the specific balisong. From personal experience, TPU is really good for priting trainer blade inserts - it makes them easier to fit without needing to have the printer perfectly calibrated. However, TPU is completely useless for any kind of spacers as the flex would let your handles squeeze together, ruining the action and sound of the knife.</p>
       `
     }
   ];
